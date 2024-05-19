@@ -26,14 +26,15 @@ func middlewareCors(next http.Handler) http.Handler {
 }
 
 func (cfg *apiConfig) middlewareAuth(handler authHandler) http.HandlerFunc {
+	
 	return func(w http.ResponseWriter, r *http.Request) {
+		LogRequest(r)
 
 		// parse api key
 
 		authorization := r.Header.Get("Authorization")
-		log.Printf("apikey: %v\n", authorization)
 		if len(authorization) < 6 || authorization[:6] != "apikey" {
-			log.Println("apiCfg.middlewareAuth: bad authorization request")
+			log.Println("apiCfg.middlewareAuth: Bad authorization request")
 			respondWithError(w, http.StatusBadRequest, "Please use your API key")
 			return
 		}
@@ -49,13 +50,21 @@ func (cfg *apiConfig) middlewareAuth(handler authHandler) http.HandlerFunc {
 		case "/v1/users":
 			resource, err = cfg.DB.GetUser(r.Context(), apiKey)
 			if err != nil {
-				log.Println("apiCfg.middlewareAuth: could not locate user given parameters")
-				respondWithError(w, http.StatusNotFound, "Could not locate user")
+				log.Println("apiCfg.middlewareAuth: Could not locate user")
+				respondWithError(w, http.StatusUnauthorized, "Could not locate user")
+				return
+			}
+		case "/v1/feeds":
+			resource, err = cfg.DB.GetUser(r.Context(), apiKey)
+			log.Println("apiCfg.middlewareAuth: Authenticating feed author")
+			if err != nil {
+				log.Println("apiCfg.middlewareAuth: Could not locate user")
+				respondWithError(w, http.StatusUnauthorized, "Not authorized")
 				return
 			}
 		default:
-			log.Println("apiCfg.middlewareAuth: unknown path")
-			respondWithError(w, http.StatusNotFound, "Resource not found")
+			log.Println("apiCfg.middlewareAuth: Unknown path")
+			respondWithError(w, http.StatusOK, "Authorized: Resource not found")
 			return
 		}
 
@@ -64,4 +73,3 @@ func (cfg *apiConfig) middlewareAuth(handler authHandler) http.HandlerFunc {
 		handler(w, r, resource)
 	}
 }
-

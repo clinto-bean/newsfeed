@@ -22,7 +22,7 @@ func (cfg *apiConfig) handlerCreateUsers(w http.ResponseWriter, r *http.Request)
 	type parameters struct {
 		Name string `json:"name"`
 	}
-	log.Printf("%s: Request received: %v %v", getFunctionName(cfg), r.Method, r.URL.String())
+	LogRequest(r)
 
 	// decode request object
 
@@ -77,7 +77,6 @@ func (cfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, res
         return
 	}
 
-	log.Printf("%s: Request received: %v %v", getFunctionName(cfg), r.Method, r.URL.String())
 	log.Printf("apiConfig.handlerGetUser: Located user: %v\n", user.Name)
 
 	respondWithJSON(w, http.StatusOK, User{

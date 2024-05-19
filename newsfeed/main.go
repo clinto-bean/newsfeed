@@ -66,3 +66,6 @@ func main(){
 	log.Fatal(srv.ListenAndServe())
 }
 
+func LogRequest (r *http.Request) {
+	log.Printf("Request received: %v %v", r.Method, r.URL.String())
+}
