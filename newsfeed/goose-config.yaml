@@ -1,0 +1,6 @@
+env: "development"
+
+development:
+  driver: "postgres"
+  open: "postgres://clinton:@localhost:5432/newsfeed"
+  dir: "./sql/schema"
